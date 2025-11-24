@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main_block %}
+
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+
+<hr>
+
+<!-- Display data in table -->
+<h3>Profile List</h3>
+
+<table border="1" cellpadding="10">
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Password</th>
+    </tr>
+
+    {% for p in profiles %}
+    <tr>
+        <td>{{ p.name }}</td>
+        <td>{{ p.email }}</td>
+        <td>{{ p.password }}</td>
+        <td>
+    <a href="{% url 'update-profile' p.id %}">Edit</a>
+</td>
+
+    </tr>
+    {% endfor %}
+</table>
+
+
+
+{% endblock %}

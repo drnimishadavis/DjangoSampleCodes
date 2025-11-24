@@ -1,0 +1,47 @@
+Metadata-Version: 2.4
+Name: django_page_hit_counter
+Version: 0.2
+Summary: Simple Django page hit counter
+Home-page: https://github.com/drnimishadavis/djangopagehitcounter
+Author: Nimisha Davis
+License: MIT
+Classifier: Framework :: Django
+Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: Django>=3.2
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: requires-dist
+Dynamic: summary
+
+# django_page_hit_counter
+
+A simple Django app to count and display page hits (views) for any Django model instance. It's fast, lightweight, and easy to integrate.
+
+## Features
+
+* Tracks unique and total hits for any model object (e.g., Post, Page, Product).
+* Provides a simple template tag to display counts.
+* Includes a mixin to easily register hits in your class-based views.
+* Lightweight and minimal dependencies.
+
+---
+
+## Step-by-Step Implementation
+
+Follow these steps to get your page hit counter working in minutes.
+
+### 1. Installation
+
+Install the package using pip:
+
+```bash
+pip install django-page-hit-counter
+
+## Developed by Nimisha Davis

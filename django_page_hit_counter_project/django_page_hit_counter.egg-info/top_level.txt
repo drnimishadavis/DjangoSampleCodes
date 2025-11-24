@@ -1,0 +1,3 @@
+demo_pages
+demo_project
+django_page_hit_counter

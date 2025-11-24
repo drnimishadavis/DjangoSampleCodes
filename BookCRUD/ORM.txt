@@ -1,0 +1,24 @@
+ORM - Object–Relational Mapping.
+interact with the database using Python code instead of writing SQL queries.
+ORM converts it to SQL for you.
+
+# Create 
+Book.objects.create(
+    title="Harry Potter",
+    author="J.K. Rowling",
+    price=450,
+    language="English",
+    genre="Fantasy",
+    year=1997
+)
+
+# Read 
+books = Book.objects.all()
+
+# Update
+book = Book.objects.get(id=1)
+book.title = "New Title"
+book.save()
+
+# Delete
+book.delete()

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main_block %}
+
+    <h2 class="text-center">All Books</h2>
+    <div class="d-flex justify-content-center mb-4">
+    <form method="get" class="d-flex" style="max-width: 450px; width:100%;">
+        <input type="text" name="q" class="form-control me-2" placeholder="Search here..." value="{{ request.GET.q }}" required>
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+    </form>
+</div>
+
+<!-- {{books}} -->
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Cover Image</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td class="text-center">
+                {% if book.image %}
+                    <img src="{{ book.image.url }}" 
+                         alt="{{ book.title }}" 
+                         style="height:70px; width:auto; border-radius:5px;">
+                {% else %}
+                    <span class="text-muted">No image</span>
+                {% endif %}
+            </td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.price }}</td>
+
+            <td>
+                <a href="{% url 'bookdetails' book.pk %}" class="btn btn-sm btn-success">More Details</a>
+                <a href="{% url 'bookupdate' book.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'bookdelete' book.pk %}" 
+   class="btn btn-sm btn-danger"
+   onclick="return confirm('Delete this book?')">
+   Delete
+</a>
+
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="text-center">No books available</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

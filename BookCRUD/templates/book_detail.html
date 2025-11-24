@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main_block %}
+
+<div class="container mt-5">
+    
+    <!-- Display Book Image -->
+    <div class="text-center mb-4">
+        {% if books.image %}
+            <img src="{{ books.image.url }}" 
+                 alt="{{ books.title }}" 
+                 class="img-fluid rounded shadow" 
+                 style="max-height:300px;">
+        {% else %}
+            <p class="text-muted">No Image Available</p>
+        {% endif %}
+    </div>
+
+    <!-- Book Details -->
+    <h2 class="text-center">{{ books.title }}</h2>
+    <h6 class="text-center">{{ books.author }}</h6>
+    <h6 class="text-center">₹ {{ books.price }}</h6>
+    <h6 class="text-center">{{ books.genre }}</h6>
+    <h6 class="text-center">{{ books.language }}</h6>
+    <h6 class="text-center">{{ books.year }}</h6>
+
+</div>
+
+{% endblock %}
