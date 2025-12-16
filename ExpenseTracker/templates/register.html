@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register — Expense Tracker</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <style>
+    /* small niceties */
+    body { background: #f7f7fb; }
+    .card-auth { max-width: 520px; border-radius: 12px; }
+    .brand { font-weight: 700; letter-spacing: 0.2px; }
+    .or-sep { font-size: .85rem; color: #6c757d; }
+
+    /* make form inputs full-width and nicely spaced */
+    .form-control:focus { box-shadow: none; border-color: #343a40; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand brand" href="{% url 'index' %}">Expense Tracker</a>
+  </div>
+</nav>
+
+<div class="d-flex align-items-center justify-content-center" style="min-height: calc(100vh - 72px);">
+  <div class="card shadow-sm p-4 card-auth">
+    <div class="card-body">
+
+      <!-- header -->
+      <div class="text-center mb-3">
+        <i class="bi bi-person-plus" style="font-size:2.4rem;"></i>
+        <h3 class="mt-2">Create account</h3>
+        <p class="text-muted mb-0">Quickly create an account to track your expenses</p>
+      </div>
+
+      <!-- non-field errors -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <!-- form -->
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {# If your form has specific commonly-used fields, render them individually for nicer markup #}
+        {% if form.username or form.email or form.password1 or form.password2 %}
+          {% if form.username %}
+            <div class="mb-3">
+              {{ form.username.label_tag }}
+              {{ form.username }}
+              {% if form.username.errors %}
+                <div class="form-text text-danger">{{ form.username.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.email %}
+            <div class="mb-3">
+              {{ form.email.label_tag }}
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="form-text text-danger">{{ form.email.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.password1 %}
+            <div class="mb-3">
+              {{ form.password1.label_tag }}
+              {{ form.password1 }}
+              {% if form.password1.errors %}
+                <div class="form-text text-danger">{{ form.password1.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.password2 %}
+            <div class="mb-3">
+              {{ form.password2.label_tag }}
+              {{ form.password2 }}
+              {% if form.password2.errors %}
+                <div class="form-text text-danger">{{ form.password2.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {# Render any other leftover fields (hidden fields, captcha, etc.) #}
+          {% for hidden_field in form.hidden_fields %}
+            {{ hidden_field }}
+          {% endfor %}
+          {% for f in form %}
+            {% if not f.name in "username email password1 password2" %}
+              <div class="mb-3">
+                {{ f.label_tag }}
+                {{ f }}
+                {% if f.errors %}
+                  <div class="form-text text-danger">{{ f.errors.0 }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+
+        {% else %}
+          {# Generic fallback: iterate all fields #}
+          {% for field in form %}
+            <div class="mb-3">
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.errors %}
+                <div class="form-text text-danger">{{ field.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Submit -->
+        <div class="d-grid mb-3">
+          <button type="submit" class="btn btn-dark">Register</button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">Already have an account?</small>
+          <a href="{% url 'signin' %}">Sign in</a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+<

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block main_block %}
+
+<style>
+/* keep style local to this page */
+.edit-card {
+  max-width: 720px;
+  margin: 48px auto;
+  border-radius: 12px;
+
+  /* stronger glass so it shows on both light/dark backgrounds */
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(7px) saturate(140%);
+  -webkit-backdrop-filter: blur(7px) saturate(140%);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  color: #0f1720; /* dark text for better contrast on light pages */
+  padding: 22px;
+}
+
+/* If your site uses a dark background, add .dark-theme to the container:
+   .dark-theme .edit-card { color: #fff; background: rgba(0,0,0,0.30); border-color: rgba(255,255,255,0.06); } */
+
+label.label-strong { font-weight:600; }
+
+/* Style inputs even if widgets don't include .form-control */
+.edit-card input,
+.edit-card select,
+.edit-card textarea {
+  width: 100%;
+  padding: .5rem .625rem;
+  border-radius: .375rem;
+  border: 1px solid rgba(15,21,32,0.08);
+  background: #fff;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.edit-card input:focus,
+.edit-card select:focus,
+.edit-card textarea:focus {
+  outline: none;
+  border-color: rgba(13,110,253,0.9); /* bootstrap primary */
+  box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.12);
+}
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid rgba(15,21,32,0.06);
+  color: inherit;
+}
+
+/* Buttons layout: left = save, middle = cancel, right = delete */
+.btn-row { display:flex; gap: .5rem; align-items:center; }
+.btn-row .ms-auto { margin-left: auto !important; }
+
+/* Small mobile tweak */
+@media (max-width:575px){
+  .btn-row { flex-direction: column; }
+  .btn-row .ms-auto { margin-left: 0 !important; width:100%; }
+}
+</style>
+
+<div class="container">
+  <div class="edit-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Edit Expense</h4>
+      <small class="text-muted">ID: {{ expense.id }}</small>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    {# Main edit form #}
+    <form method="post" enctype="multipart/form-data"  novalidate>
+      {% csrf_token %}
+
+      {# Render fields individually so we can style them #}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label label-strong" for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+          </label>
+
+          {{ field }}
+          {% if field.help_text %}
+            <div class="form-text text-muted small">{{ field.help_text }}</div>
+          {% endif %}
+
+          {% if field.errors %}
+            <div class="form-text text-danger small">{{ field.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+
+        {# Cancel should return user to detail or list page, not back to edit. Change as needed. #}
+        <a href="{% url 'home' %}" class="btn btn-cancel">Cancel</a>
+
+       
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

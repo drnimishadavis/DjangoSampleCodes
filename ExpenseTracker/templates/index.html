@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% block main_block %}
+
+<style>
+.center-box {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 0;
+}
+
+.glass-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(7px) saturate(160%);
+    -webkit-backdrop-filter: blur(7px) saturate(160%);
+    border-radius: 16px;
+    padding: 28px 30px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    max-width: 1100px;
+    width: 95%;
+}
+
+.glass-card h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.top-row { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+.summary-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+.summary-item {
+    background: rgba(255,255,255,0.03);
+    padding: 12px 18px;
+    border-radius: 12px;
+    min-width: 160px;
+    text-align: left;
+}
+
+.summary-item h3 { margin:0; font-size:0.95rem; font-weight:600; }
+.summary-item p { margin:6px 0 0; font-weight:700; font-size:1.1rem; }
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+    margin-top: 22px;
+    align-items: start;
+}
+
+.chart-card {
+    background: rgba(255,255,255,0.02);
+    padding: 14px;
+    border-radius: 12px;
+    min-height: 260px;
+    display:flex;
+    flex-direction:column;
+}
+
+.chart-card canvas {
+    width: 100% !important;
+    height: 250px !important; /* fixed height */
+}
+
+.small-muted { opacity:.85; font-size:.9rem; margin-top:8px; color:inherit; }
+
+.recent-list { text-align:left; margin-top:18px; }
+
+.btn-row { display:flex; gap:8px; align-items:center; }
+
+.glass-btn {
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: 0.2s;
+}
+.glass-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+
+@media (max-width: 540px) {
+    .glass-card { padding: 18px; }
+    .summary-item { min-width: 140px; }
+}
+</style>
+
+<div class="container center-box">
+    <div class="glass-card">
+        <div class="top-row">
+            <div style="text-align:left;">
+                <h1>Expense Tracker</h1>
+                <div class="small-muted">Overview of your spending</div>
+            </div>
+
+            <div class="btn-row">
+                {% if request.user.is_authenticated %}
+                    <div class="small-muted" style="margin-right:12px">Signed in as <strong>{{ request.user.username }}</strong></div>
+                    <a href="{% url 'signout' %}" class="btn btn-danger glass-btn">Logout</a>
+                {% else %}
+                    <a href="{% url 'signin' %}" class="btn btn-dark glass-btn">Login</a>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if request.user.is_authenticated %}
+            <!-- Summary -->
+            <div class="summary-row">
+                <div class="summary-item">
+                    <h3>Total Expense</h3>
+                    <p>₹{{ total_expense }}</p>
+                    <div class="small-muted">All time</div>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Categories</h3>
+                    <p>{{ category_count }}</p>
+                    <div class="small-muted">Different categories used</div>
+                </div>
+
+                <div class="summary-item">
+                    <h3>Last 12 Months</h3>
+                    <p>₹{{ month_total }}</p>
+                    <div class="small-muted">Sum of the last 12 months shown on chart</div>
+                </div>
+            </div>
+
+            {# Safe JSON for charts #}
+            {{ category_labels|json_script:"category-labels" }}
+            {{ category_values|json_script:"category-values" }}
+            {{ month_labels|json_script:"month-labels" }}
+            {{ month_values|json_script:"month-values" }}
+
+            <!-- Charts + Recent Expenses -->
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h4 style="margin:0 0 8px;">Expense by Category</h4>
+                    <canvas id="catChart"></canvas>
+                    <div class="small-muted" style="margin-top:10px">Top categories by amount</div>
+                </div>
+
+                <div class="chart-card">
+                    <h4 style="margin:0 0 8px;">Expense by Month (last 12 months)</h4>
+                    <canvas id="monthChart"></canvas>
+                    <div class="small-muted" style="margin-top:10px">Monthly totals</div>
+                </div>
+
+                <div class="chart-card" style="grid-column: span 2;">
+                    <h4 style="margin:0 0 8px;">Recent Expenses</h4>
+                    <div class="recent-list">
+                        <ul class="list-group">
+                            {% for e in request.user.expense_set.all|dictsortreversed:"created_at"|slice:"0:6" %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ e.title }}</strong>
+                                        <div class="small-muted">{{ e.created_at|date:"d M Y, H:i" }} • {{ e.category }}</div>
+                                    </div>
+                                    <div>₹{{ e.amount }}</div>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item">No expenses yet.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div style="margin-top:22px;">
+                <p class="small-muted">You are not logged in. Log in to view your dashboard, charts and recent expenses.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Parse the JSON data embedded by json_script
+    const catLabels = JSON.parse(document.getElementById('category-labels')?.textContent || '[]');
+    const catValues = JSON.parse(document.getElementById('category-values')?.textContent || '[]');
+    const monthLabels = JSON.parse(document.getElementById('month-labels')?.textContent || '[]');
+    const monthValues = JSON.parse(document.getElementById('month-values')?.textContent || '[]');
+
+    const safeArr = (v) => Array.isArray(v) ? v : [];
+
+    // Category bar chart
+    if (safeArr(catLabels).length) {
+        new Chart(document.getElementById('catChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    label: 'Amount (₹)',
+                    data: catValues,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // Monthly line chart
+    if (safeArr(monthLabels).length) {
+        new Chart(document.getElementById('monthChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: monthLabels,
+                datasets: [{
+                    label: 'Monthly Total (₹)',
+                    data: monthValues,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.25,
+                    fill: true,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

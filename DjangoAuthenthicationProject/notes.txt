@@ -1,0 +1,27 @@
+Auth-app
+=====
+models.py
+    username
+    email
+    first_name
+    last_name
+    password
+
+    we're split it into 3 models.
+    django.contrib.auth
+
+        class AbstractBaseUser(models.Model):
+            password=models.CharField()
+
+        class AbstractUser(AbstractBaseUser):
+            username=
+            email=
+            first_name=
+            last_name=
+        
+        class User(AbstractUser):
+            username=
+            email=
+            first_name=
+            last_name=
+            password=

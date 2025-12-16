@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block main_block %}
+
+<style>
+/* GLASS EFFECT CONTAINER */
+.glass-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px) saturate(160%);
+    -webkit-backdrop-filter: blur(6px) saturate(160%);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.20);
+    width: 95%;
+}
+
+/* Transparent table */
+.table-transparent thead th {
+    background: rgba(0,0,0,0.45) !important;
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.table-transparent tbody td {
+    background: transparent !important;
+    border-color: rgba(255,255,255,0.15);
+}
+
+.table-transparent tbody tr:hover td {
+    background: rgba(255,255,255,0.05) !important;
+}
+
+/* Scrollable table */
+.table-wrapper {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+/* Actions icons styling */
+.action-icons a {
+    font-size: 1.15rem;
+    margin: 0 5px;
+}
+</style>
+
+
+<div class="container mt-5 text-center">
+
+    <div class="glass-box mx-auto">
+        <h2 class="mb-3">Your Expenses</h2>
+
+        <div class="table-wrapper">
+            <table class="table table-hover table-borderless table-transparent align-middle text-center">
+
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.title }}</td>
+                            <td>₹{{ expense.amount }}</td>
+                            <td>{{ expense.created_at|date:"d M Y" }}</td>
+<td class="action-icons">
+
+    <a href="{% url 'expensedetail' expense.id %}" class="text-primary" title="View">
+        <i class="bi bi-eye-fill"></i>
+    </a>
+
+    <a href="{% url 'editexpense' expense.id %}" class="text-warning" title="Edit">
+        <i class="bi bi-pencil-square"></i>
+    </a>
+
+    <form method="post" action="{% url 'deleteexpense' expense.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit"
+                onclick="return confirm('Are you sure you want to delete this expense?');"
+                title="Delete"
+                class="btn btn-link text-danger p-0 m-0"
+                style="font-size: 1.15rem;">
+            <i class="bi bi-trash-fill"></i>
+        </button>
+    </form>
+
+</td>
+
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-muted">No expenses found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot>
+                    <tr style="background: rgba(255,255,255,0.08);">
+                        <th>Total</th>
+                        <th colspan="4">₹{{ total_amount }}</th>
+                    </tr>
+                </tfoot>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

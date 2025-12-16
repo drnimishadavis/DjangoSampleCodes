@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block main_block %}
+
+<style>
+/* Glass / transparent table card */
+.glass {
+  background: rgba(255,255,255,0.04);  
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  padding: 18px;
+}
+
+/* Slightly darker header for contrast inside the glass */
+.glass .card-header {
+  background: rgba(255,255,255,0.03);
+  border-bottom: none;
+}
+
+/* Make table background transparent */
+.table-transparent thead th {
+  background: rgba(0,0,0,0.35); /* darkish header */
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.table-transparent tbody td {
+  background: transparent;
+  vertical-align: middle;
+}
+
+/* Hover row highlight inside glass table */
+.table-transparent tbody tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+
+/* Responsive scroll for long tables */
+.table-wrapper {
+  max-height: 56vh;
+  overflow: auto;
+  padding-right: 6px; /* for scrollbar spacing */
+}
+
+/* Form inputs styling so fields look consistent without changing Python widgets */
+.expense-form input,
+.expense-form select,
+.expense-form textarea {
+  width: 100%;
+  padding: .5rem .625rem;
+  border-radius: .375rem;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.02);
+  color: inherit;
+  box-sizing: border-box;
+}
+
+/* Make action icons a bit larger and spaced */
+.action-icons a { font-size: 1.05rem; margin: 0 .25rem; }
+</style>
+
+<div class="container-fluid mt-5">
+  <div class="row gx-4">
+
+    <!-- LEFT: Form -->
+    <div class="col-12 col-md-4 mb-4">
+      <div class="glass h-100">
+        <div class="card border-0 bg-transparent">
+          <div class="card-header pb-2">
+            <h4 class="mb-0 text-center">Add Expense</h4>
+          </div>
+          <div class="card-body expense-form">
+<form method="post" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
+
+              {% for field in form %}
+                <div class="mb-3">
+                  {{ field.label_tag }}
+                  {{ field }}
+                  {% for error in field.errors %}
+                    <p class="text-danger small mb-0">{{ error }}</p>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+
+              <button type="submit" class="btn btn-primary w-100">Add Expense</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Table -->
+    <div class="col-12 col-md-8">
+      <div class="glass">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Your Expenses</h5>
+          <small class="text-muted">Total: <strong>₹{{ total_amount }}</strong></small>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="table table-borderless table-hover table-transparent text-center mb-0">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for expense in expenses %}
+                <tr>
+                  <td class="align-middle">{{ expense.title }}</td>
+                  <td class="align-middle">₹{{ expense.amount }}</td>
+                  <td class="align-middle">{{ expense.created_at|date:"d M Y" }}</td>
+                  <td class="align-middle action-icons">
+    <!-- View -->
+    <a href="{% url 'expensedetail' expense.id %}" class="text-primary" title="View">
+        <i class="bi bi-eye-fill"></i>
+    </a>
+
+    <!-- Edit -->
+    <a href="{% url 'editexpense' expense.id  %}" class="text-warning" title="Edit">
+        <i class="bi bi-pencil-square"></i>
+    </a>
+
+    <!-- Delete -->
+    <form method="post" action="{% url 'deleteexpense' expense.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit"
+                class="btn btn-link text-danger p-0 m-0"
+                onclick="return confirm('Are you sure you want to delete this expense?');"
+                title="Delete">
+            <i class="bi bi-trash-fill"></i>
+        </button>
+    </form>
+</td>
+
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-muted">No expenses found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
